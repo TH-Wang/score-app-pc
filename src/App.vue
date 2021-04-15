@@ -10,4 +10,8 @@
   PingFang SC, Microsoft YaHei, Source Han Sans SC, Noto Sans CJK SC,
   WenQuanYi Micro Hei, sans-serif
 }
+*{
+  margin: 0;
+  padding: 0;
+}
 </style>

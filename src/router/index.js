@@ -15,9 +15,50 @@ const routes = [
         path: 'index',
         name: 'Index',
         component: () => import(
-          /* webpackChunkNaem: "index" */
+          /* webpackChunkName: "Index" */
           '@/views/index/index.vue'
         )
+      }
+    ]
+  },
+  {
+    path: '/auth',
+    name: 'Auth',
+    redirect: '/auth/login',
+    component: () => import(/* webpackChunkName: "Auth" */ '@/layout/Auth'),
+    children: [
+      {
+        path: 'login',
+        name: 'Login',
+        component: () => import(
+          /* webpackChunkName: "Login" */
+          '@/views/Login.vue'
+        )
+      },
+      {
+        path: 'register',
+        name: 'Register',
+        component: () => import(
+          /* webpackChunkName: "Register" */
+          '@/views/Register.vue'
+        )
+      }
+    ]
+  },
+  {
+    path: '/work',
+    name: 'Work',
+    component: () => import(/* webpackChunkName: "Work" */ '@/layout/Work')
+  },
+  {
+    path: '/config',
+    name: 'Config',
+    component: () => import(/* webpackChunkName: "Config" */ '@/layout/Config'),
+    children: [
+      {
+        path: 'edit',
+        name: 'Edit',
+        component: () => import(/* webpackChunkName: "Edit" */ '@/views/Edit')
       }
     ]
   }

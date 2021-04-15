@@ -1,6 +1,13 @@
 $main-width: 1200px;
 
 $primary-color: #409EFF;
+$primary-hover-color: #66b1ff;
+$primary-light-color: #D9ECFF;
+$primary-lighter-color: #ECF5FF;
+
+$success-color: #67C23A;
+$success-light-color: #E1F3D8;
+$success-lighter-color: #F0F9EB;
 
 $primary-text: #303133;
 $regular-text: #606266;
@@ -28,9 +35,4 @@ $border-extralight:#F2F6FC;
     overflow: hidden;
     word-break: break-all;
   }
-}
-
-*{
-  margin: 0;
-  padding: 0;
 }
