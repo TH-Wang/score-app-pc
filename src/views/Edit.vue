@@ -1,17 +1,17 @@
 <template>
 <div>
-  <config-header title="2020第三季度高管考核评分">
+  <project-header title="2020第三季度高管考核评分">
     <template #suffix>
       <el-button type="primary" size="medium">预览</el-button>
     </template>
-  </config-header>
+  </project-header>
 
   <div class="main">
     <div class="preview">
-      <div class="title">{{active + 1}}、 {{configForm.title || '这里是标题'}}</div>
+      <div class="title">{{active + 1}}、 {{current.title || '这里是标题'}}</div>
       <div class="content">
         <el-rate
-          v-show="configForm.type === 0"
+          v-show="current.type === 0"
           show-text
           :colors="['#99A9BF', '#F7BA2A', '#FF9900']"
           :texts="['极差', '较差', '一般', '良好', '优秀']"
@@ -19,11 +19,11 @@
         ></el-rate>
 
         <el-radio-group
-          v-show="configForm.type === 1"
+          v-show="current.type === 1"
           v-model="test.radio"
         >
           <el-radio
-            v-for="item in configForm.options"
+            v-for="item in current.options"
             :key="item.value"
             :label="item.value"
             class="block-option"
@@ -31,11 +31,11 @@
         </el-radio-group>
 
         <el-checkbox-group
-          v-show="configForm.type === 2"
+          v-show="current.type === 2"
           v-model="test.checkbox"
         >
           <el-checkbox
-            v-for="item in configForm.options"
+            v-for="item in current.options"
             :key="item.value"
             :label="item.value"
             class="block-option"
@@ -43,7 +43,7 @@
         </el-checkbox-group>
 
         <el-input
-          v-show="configForm.type === 3"
+          v-show="current.type === 3"
           v-model="test.input"
           type="textarea"
           :autosize="{ minRows: 2}"
@@ -53,14 +53,23 @@
     </div>
 
     <div class="config">
-      <el-form :model="configForm" :rules="rules" label-width="60px" label-position="left">
-
-        <el-form-item label="标题">
-          <el-input style="width: 600px" v-model="configForm.title" placeholder="请输入标题"></el-input>
+      <el-form
+        label-width="60px"
+        label-position="left"
+        :model="current"
+        :rules="rules"
+        ref="form"
+      >
+        <el-form-item label="标题" prop="title">
+          <el-input style="width: 600px" v-model="items[active].title" placeholder="请输入标题"></el-input>
         </el-form-item>
 
-        <el-form-item label="方式">
-          <el-select style="width: 200px" v-model="configForm.type">
+        <el-form-item label="方式" prop="type">
+          <el-select
+            style="width: 200px"
+            v-model="items[active].type"
+            @change="handleSelectChange"
+          >
             <el-option label="打分" :value="0"></el-option>
             <el-option label="单选" :value="1"></el-option>
             <el-option label="多选" :value="2"></el-option>
@@ -69,20 +78,21 @@
         </el-form-item>
 
         <el-form-item
-          v-if="configForm.type === 1 || configForm.type === 2"
+          v-if="current.type === 1 || current.type === 2"
           label="选项"
+          prop="options"
+          required
         >
           <div class="options">
             <div
               class="options-item"
-              v-for="(option, idx) in configForm.options"
+              v-for="(option, idx) in items[active].options"
               :key="option.value"
             >
-              第{{idx+1}}个：
               <el-input
                 style="width:300px"
                 v-model="option.label"
-                placeholder="请输入该选项内容"
+                :placeholder="`第${idx+1}个选项`"
               ></el-input>
               <span
                 v-if="idx > 1"
@@ -90,23 +100,20 @@
                 @click="removeOption(idx)"
               ><i class="el-icon-close"></i></span>
             </div>
-            <el-button
-              style="margin-left:50px"
-              size="small"
-              @click="addOption(1)"
-            >添加选项</el-button>
+            <el-button size="small" @click="addOption(1)">添加选项</el-button>
           </div>
         </el-form-item>
       </el-form>
     </div>
 
     <div class="footer">
-      <el-button>
+      <el-button v-show="active > 0" @click="prevStep">
         <i class="el-icon-arrow-left"></i>上一步
       </el-button>
       <el-button type="primary">全部完成</el-button>
-      <el-button type="primary">
-        保存并继续<i class="el-icon-arrow-right"></i>
+      <el-button type="primary" @click="nextStep">
+        {{active === items.length - 1 ? '保存并继续' : '下一步'}}
+        <i class="el-icon-arrow-right"></i>
       </el-button>
     </div>
   </div>
@@ -114,30 +121,39 @@
 </template>
 
 <script>
-import ConfigHeader from '@/components/ConfigHeader'
+import ProjectHeader from '@/components/ProjectHeader'
 
-const initTest = () => ({
-  rate: 0,
-  radio: 0,
-  checkbox: [],
-  input: ''
-})
+const _t = () => ({ rate: 0, radio: null, checkbox: [], input: '' })
+
+const _m = () => ({ title: '', type: 0, options: [] })
+
+const _v = options => {
+  for (let i = 0; i < options.length; i++) {
+    if (!options[i]) return false
+  }
+  return true
+}
 
 export default {
-  components: { ConfigHeader },
+  components: { ProjectHeader },
   data: () => ({
+    // 当前评分项的索引
     active: 0,
-    items: [{
-      type: 0
-    }],
-    configForm: {
-      title: '',
-      type: 0,
-      options: []
+    // 检测项目
+    items: [],
+    rules: {
+      title: [{ required: true, message: '标题不能为空', trigger: 'blur' }],
+      type: [{ required: true, message: '必须选择一种评分方式', trigger: 'blur' }],
+      options: [{
+        validate: _v,
+        message: '所有添加的选项值均不能为空',
+        trigger: 'blur'
+      }]
     },
-    rules: {},
+    // options的唯一值
     uid: 0,
-    test: initTest()
+    // 即时预览用于双向绑定的测试值
+    test: _t()
   }),
   computed: {
     current () {
@@ -145,32 +161,51 @@ export default {
     }
   },
   methods: {
-    handleChange (val) {
-      const newData = Object.assign({}, this.items[this.active], { test: val })
-      this.$set(this.items, this.active, newData)
-    },
+    // 添加选项
     addOption (count) {
       count = count || 1
       let i = 0
       while (i < count) {
         const newId = this.uid++
-        this.configForm.options.push({ value: newId, label: '' })
+        this.items[this.active].options.push({ value: newId, label: '' })
         i++
       }
     },
+    // 删除选项
     removeOption (idx) {
-      this.configForm.options.splice(idx, 1)
+      this.items[this.active].options.splice(idx, 1)
+    },
+    // 评分方式选择框发生改变
+    handleSelectChange (val) {
+      if ((val === 1 || val === 2) && this.current.options.length === 0) {
+        this.addOption(2)
+      }
+    },
+    // 上一步
+    prevStep () {
+      this.active--
+    },
+    // 下一步
+    async nextStep () {
+      try {
+        // 表单验证
+        const valid = await this.$refs.form.validate()
+        if (!valid) return
+
+        if (this.active === this.items.length - 1) {
+          this.items.push(_m())
+        }
+        this.active++
+      } catch (error) {}
     }
   },
   created () {
-    window.DATA = this.test
-  },
-  watch: {
-    'configForm.type': function (newVal) {
-      if (newVal !== 1 && newVal !== 2) return
-      if (this.configForm.options.length === 0) {
-        this.addOption(2)
-      }
+    // const id = this.$route.query?.id
+    const tid = this.$route.query?.tid
+    if (tid) {
+      // 请求模板数据
+    } else {
+      this.items.push(_m())
     }
   }
 }

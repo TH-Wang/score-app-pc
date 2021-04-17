@@ -7,7 +7,9 @@
       'background-image': `url(${src})`
     }"
   >
-    <div class="mask"></div>
+    <div class="mask">
+      <slot></slot>
+    </div>
   </div>
 </template>
 

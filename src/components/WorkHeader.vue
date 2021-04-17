@@ -1,7 +1,7 @@
 <template>
   <div class="header">
     <el-avatar></el-avatar>
-    <div class="user-name">流川枫霹雳爆头</div>
+    <div class="user-name">流川枫</div>
   </div>
 </template>
 
@@ -16,7 +16,7 @@ export default {
   width: 100%;
   height: 60px;
   line-height: 60px;
-  padding: 0 20px;
+  padding: 0 30px;
   box-sizing: border-box;
   display: flex;
   align-items: center;

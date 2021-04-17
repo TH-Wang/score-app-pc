@@ -31,9 +31,9 @@ $search-font-space: 1px;
     margin: 0 auto;
     transform: translateY(-50%);
     background-color: #FFFFFF;
-    border-radius: 6px;
+    border-radius: 3px;
     overflow: hidden;
-    box-shadow: 0 0 18px 0 rgba($color: #000000, $alpha: .1);
+    box-shadow: 0 0 20px 0 rgba($color: #000000, $alpha: .1);
     display: flex;
     align-items: center;
   }

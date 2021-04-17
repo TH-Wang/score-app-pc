@@ -83,11 +83,11 @@ export default {
 .card{
   width: 360px;
   height: auto;
-  padding: 10px 20px;
+  padding: 20px 30px;
   box-sizing: border-box;
-  background-color: #FFFFFF;
-  border-radius: 2px;
-  box-shadow: 0 2px 25px 0 rgba($color: #000000, $alpha: .1);
+  // background-color: #FFFFFF;
+  // border-radius: 3px;
+  // box-shadow: 0 0px 20px 0px rgba($color: #000000, $alpha: .05);
 }
 .title{
   height: 50px;

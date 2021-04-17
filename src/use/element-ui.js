@@ -14,6 +14,7 @@ import {
   Menu,
   MenuItem,
   Icon,
+  Image,
   Input,
   Option,
   Rate,
@@ -41,6 +42,7 @@ export default {
     Vue.use(Menu)
     Vue.use(MenuItem)
     Vue.use(Icon)
+    Vue.use(Image)
     Vue.use(Input)
     Vue.use(Option)
     Vue.use(Rate)

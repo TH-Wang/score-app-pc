@@ -3,7 +3,7 @@
     <div class="nav-fixed">
       <div class="nav-container">
         <!-- Logo -->
-        <div class="logo"></div>
+        <logo />
 
         <!-- nav -->
         <div class="menu">
@@ -28,6 +28,7 @@
 </template>
 
 <script>
+import Logo from '@/components/Logo'
 import UserHandler from './UserHandler.vue'
 const nav = [
   { label: '模板广场', path: '/index', index: 0 },
@@ -37,7 +38,7 @@ const nav = [
 ]
 
 export default {
-  components: { UserHandler },
+  components: { Logo, UserHandler },
   data: () => ({
     nav,
     active: 0,
@@ -93,7 +94,7 @@ $nav-height: 60px;
   height: 100%;
   display: flex;
   align-items: center;
-  margin: 0 20px;
+  margin: 0 20px 0 50px;
 
   &-item{
     color: $secondary-text;

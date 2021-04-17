@@ -48,17 +48,30 @@ const routes = [
   {
     path: '/work',
     name: 'Work',
-    component: () => import(/* webpackChunkName: "Work" */ '@/layout/Work')
+    redirect: '/work/protemp',
+    component: () => import(/* webpackChunkName: "Work" */ '@/layout/Work'),
+    children: [
+      {
+        path: 'protemp',
+        name: 'Protemp',
+        component: () => import(/* webpackChunkName: "Protemp" */ '@/views/Protemp')
+      }
+    ]
   },
   {
-    path: '/config',
-    name: 'Config',
-    component: () => import(/* webpackChunkName: "Config" */ '@/layout/Config'),
+    path: '/project',
+    name: 'Project',
+    component: () => import(/* webpackChunkName: "Project" */ '@/layout/Project'),
     children: [
       {
         path: 'edit',
         name: 'Edit',
         component: () => import(/* webpackChunkName: "Edit" */ '@/views/Edit')
+      },
+      {
+        path: 'detail/:type',
+        name: 'Detail',
+        component: () => import(/* webpackChunkName: "Detail" */ '@/views/Detail')
       }
     ]
   }

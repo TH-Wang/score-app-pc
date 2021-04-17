@@ -20,13 +20,21 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+$aside-width: 150px;
+
 .work{
   display: flex;
+  height: 100vh;
 }
 .aside{
+  width: $aside-width;
   flex-shrink: 0;
+  height: 100%;
 }
 .main{
   flex: 1;
+  box-sizing: border-box;
+  height: 100%;
+  overflow-y: auto;
 }
 </style>
