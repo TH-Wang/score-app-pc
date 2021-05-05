@@ -83,12 +83,6 @@ $nav-height: 60px;
   justify-content: space-between;
   align-items: center;
 }
-.logo{
-  width: 120px;
-  height: 40px;
-  border-radius: 6px;
-  background-color: #f5f5f5;
-}
 .menu{
   flex: 1;
   height: 100%;

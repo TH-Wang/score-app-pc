@@ -7,6 +7,8 @@
   </project-header>
 
   <div class="main">
+    <div class="nav-grid"></div>
+
     <div class="preview">
       <div class="title">{{active + 1}}、 {{current.title || '这里是标题'}}</div>
       <div class="content">
@@ -121,40 +123,50 @@
 </template>
 
 <script>
+import { isEmpty } from 'lodash'
 import ProjectHeader from '@/components/ProjectHeader'
 
 const _t = () => ({ rate: 0, radio: null, checkbox: [], input: '' })
 
 const _m = () => ({ title: '', type: 0, options: [] })
 
-const _v = options => {
-  for (let i = 0; i < options.length; i++) {
-    if (!options[i]) return false
-  }
-  return true
-}
-
 export default {
   components: { ProjectHeader },
-  data: () => ({
+  data: vm => {
+    const _v = (rule, val, cb) => {
+      if (vm.current.type !== 1 && vm.current.type !== 2) {
+        cb()
+        return
+      }
+      if (!val.length) cb(new Error('请输入选项值'))
+      else {
+        let flag = true
+        for (let i = 0; i < val.length; i++) {
+          if (isEmpty(val[i].label)) {
+            cb(new Error('所有选项值均不能为空'))
+            flag = false
+            break
+          }
+        }
+        flag && cb()
+      }
+    }
+    return {
     // 当前评分项的索引
-    active: 0,
-    // 检测项目
-    items: [],
-    rules: {
-      title: [{ required: true, message: '标题不能为空', trigger: 'blur' }],
-      type: [{ required: true, message: '必须选择一种评分方式', trigger: 'blur' }],
-      options: [{
-        validate: _v,
-        message: '所有添加的选项值均不能为空',
-        trigger: 'blur'
-      }]
-    },
-    // options的唯一值
-    uid: 0,
-    // 即时预览用于双向绑定的测试值
-    test: _t()
-  }),
+      active: 0,
+      // 检测项目
+      items: [],
+      rules: {
+        title: [{ required: true, message: '标题不能为空', trigger: 'blur' }],
+        type: [{ required: true, message: '必须选择一种评分方式', trigger: 'blur' }],
+        options: [{ validator: _v, trigger: 'blur' }]
+      },
+      // options的唯一值
+      uid: 0,
+      // 即时预览用于双向绑定的测试值
+      test: _t()
+    }
+  },
   computed: {
     current () {
       return this.items[this.active]

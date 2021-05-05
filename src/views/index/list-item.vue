@@ -1,15 +1,15 @@
 <template>
-  <div class="list-item">
-    <cover width="100%" height="120px" />
+  <div class="list-item" @click="$emit('click')">
+    <cover :src="record.cover" width="100%" height="120px" />
     <div class="list-item-title">
-      模板标题
+      {{record.pname}}
     </div>
     <div class="list-item-info">
       <span class="list-item-info-creator">
-        <i class="el-icon-user"></i> 创建者
+        <i class="el-icon-user"></i> {{record.creator}}
       </span>
       <span class="list-item-info-view">
-        <i class="el-icon-view"></i> 999+
+        <i class="el-icon-view"></i> {{record.hits | number}}
       </span>
     </div>
   </div>
@@ -19,7 +19,13 @@
 import Cover from '@/components/Cover.vue'
 
 export default {
-  components: { Cover }
+  components: { Cover },
+  props: {
+    record: {
+      type: Object,
+      default: () => ({})
+    }
+  }
 }
 </script>
 

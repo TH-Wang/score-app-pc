@@ -40,7 +40,7 @@
       <div class="menu-item menu-item-end">
         <div class="menu-item-icon">
           <div class="setting-icon">
-            <i class="el-icon-setting"></i>
+            <i class="el-icon-s-tools"></i>
           </div>
         </div>
         <div class="menu-item-label">
@@ -50,7 +50,7 @@
       </div>
     </div>
 
-    <create-dialog ref="create" @submit="createSubmit" />
+    <create-dialog title="新建" ref="create" @submit="createSubmit" />
 
   </div>
 </template>
@@ -58,12 +58,28 @@
 <script>
 import Logo from '@/components/Logo'
 import CreateDialog from '@/components/CreateDialog'
+import { mapState } from 'vuex'
 
 export default {
   components: { Logo, CreateDialog },
+  computed: {
+    ...mapState(['user'])
+  },
   methods: {
-    createSubmit (data) {
-      console.log(data)
+    async createSubmit (values) {
+      const userId = this.user.id
+      values = Object.assign({}, values, { userId })
+      const res = await this.$api.project.create(values)
+      const { success, data } = res.data
+      if (success) {
+        this.$confirm('项目已创建完成，即将开始自定义评分项', '创建成功', {
+          showCancelButton: false,
+          type: 'success',
+          iconClass: 'el-icon-success'
+        }).then(() => {
+          this.$router.push({ path: '/project/edit', query: { id: data } })
+        })
+      }
     }
   }
 }

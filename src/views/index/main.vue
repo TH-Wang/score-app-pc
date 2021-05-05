@@ -3,8 +3,10 @@
     <div class="main">
       <div class="list">
         <list-item
-          v-for="(item, index) in list"
-          :key="index"
+          v-for="item in list"
+          :key="item.id"
+          :record="item"
+          @click="linkDetail(item.id)"
         />
       </div>
     </div>
@@ -15,17 +17,57 @@
 <script>
 import ListItem from './list-item.vue'
 import TemplateAside from './aside.vue'
-const list = new Array(20).fill('')
 
 export default {
   components: { ListItem, TemplateAside },
+  props: {
+    keyword: {
+      type: String,
+      default: ''
+    },
+    tag: {
+      type: Number,
+      default: 0
+    }
+  },
   data: () => ({
-    list
+    list: [],
+    page: 1,
+    size: 12,
+    lastPage: 0
   }),
   filters: {
     ellipse: val => {
       if (val.length > 10) return val.slice(0, 10) + '...'
       else return val
+    }
+  },
+  methods: {
+    async queryList () {
+      const { page, size, keyword, tag } = this
+      const data = { page, size, keyword }
+      if (tag > 0) data.tag = tag
+      const res = await this.$api.project.getTemplates(data)
+      const { rows, lastPage } = res.data.data
+      this.list = rows
+      this.lastPage = lastPage
+      this.page++
+    },
+    linkDetail (id) {
+      this.$router.push({ path: '/project/detail/temp', query: { id } })
+    }
+  },
+  created () {
+    this.queryList()
+  },
+  watch: {
+    keyword () {
+      this.page = 1
+      this.queryList()
+    },
+    tag () {
+      this.page = 1
+      this.queryList()
     }
   }
 }

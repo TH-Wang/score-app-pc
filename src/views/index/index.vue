@@ -8,9 +8,11 @@
       </div>
     </div>
 
-    <search />
+    <search v-model="keyword" />
 
-    <template-main />
+    <tags v-model="tag" @change="handleTagChange" />
+
+    <template-main :keyword="keyword" :tag="tag" />
 
   </div>
 </template>
@@ -18,9 +20,19 @@
 <script>
 import Search from './search.vue'
 import TemplateMain from './main.vue'
+import Tags from './tags.vue'
 
 export default {
-  components: { Search, TemplateMain }
+  components: { Search, TemplateMain, Tags },
+  data: () => ({
+    keyword: '',
+    tag: 0
+  }),
+  methods: {
+    handleTagChange (value) {
+      this.tag = value
+    }
+  }
 }
 </script>
 

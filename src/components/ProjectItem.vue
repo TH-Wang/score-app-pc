@@ -1,7 +1,7 @@
 <template>
   <div class="project_item">
     <div class="title">
-      {{ index || record.sort + 1 }}、 {{record.title || '这里是标题'}}
+      {{ index || record.sort }}、 {{record.title || '这里是标题'}}
     </div>
     <div class="content">
       <el-rate
@@ -99,7 +99,7 @@ export default {
 <style lang="scss" scoped>
 .project_item{
 
-  padding: 50px 0;
+  padding: 20px 0;
 
   & + &{
     border-top: solid 1px $border-light;

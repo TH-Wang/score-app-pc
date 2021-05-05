@@ -13,6 +13,9 @@ import {
   Link,
   Menu,
   MenuItem,
+  Message,
+  MessageBox,
+  Notification,
   Icon,
   Image,
   Input,
@@ -51,5 +54,9 @@ export default {
     Vue.use(Select)
     Vue.use(Tooltip)
     Vue.use(Upload)
+
+    Vue.prototype.$message = Message
+    Vue.prototype.$confirm = MessageBox
+    Vue.prototype.$notify = Notification
   }
 }

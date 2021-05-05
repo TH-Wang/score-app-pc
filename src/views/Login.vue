@@ -13,21 +13,25 @@
     </div>
 
     <!-- 主体 -->
-    <el-form class="main">
+    <el-form class="main" ref="form" :model="form" :rules="rulse">
       <template v-if="active === 0">
-        <el-input
-          class="input"
-          placeholder="用户名"
-          v-model="form.username"
-          clearable
-        ></el-input>
-        <el-input
-          class="input"
-          type="password"
-          placeholder="密码"
-          v-model="form.password"
-          clearable
-        ></el-input>
+        <el-form-item prop="username">
+          <el-input
+            class="input"
+            placeholder="用户名"
+            v-model="form.username"
+            clearable
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="password">
+          <el-input
+            class="input"
+            type="password"
+            placeholder="密码"
+            v-model="form.password"
+            clearable
+          ></el-input>
+        </el-form-item>
       </template>
       <template v-else>
         <el-input
@@ -49,7 +53,7 @@
     </el-form>
 
     <!-- 提交 -->
-    <div class="login-button">登录</div>
+    <div class="login-button" @click="login">登录</div>
     <div
       class="reg-button"
       @click="$router.replace('/auth/register')"
@@ -66,8 +70,40 @@ export default {
       password: '',
       email: '',
       code: ''
+    },
+    rulse: {
+      username: [{ required: true, message: '请输入用户名' }],
+      password: [
+        { required: true, message: '请输入密码' },
+        { min: 8, message: '密码至少8位', trigger: 'blur' }
+      ]
     }
-  })
+  }),
+  methods: {
+    async login () {
+      await this.$refs.form.validate()
+      const { username, password } = this.form
+      const res = await this.$api.user.loginByPwd({ username, password })
+      const { data, success, message } = res.data
+      if (success) {
+        this.$message({
+          type: 'success',
+          message: '登录成功',
+          showClose: true
+        })
+        const { token, ...rest } = data
+        this.$store.commit('setToken', token)
+        this.$store.commit('setUser', rest)
+        this.$router.push('/index')
+      } else {
+        this.$message({
+          type: 'warning',
+          message: message,
+          showClose: true
+        })
+      }
+    }
+  }
 }
 </script>
 
@@ -109,7 +145,7 @@ export default {
   margin-top: 20px;
 
   .input{
-    margin-top: 30px;
+    margin-top: 10px;
   }
 }
 

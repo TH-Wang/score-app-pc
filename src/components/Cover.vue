@@ -3,10 +3,10 @@
     class="cover"
     :style="{
       width: size.width,
-      height: size.height,
-      'background-image': `url(${src})`
+      height: size.height
     }"
   >
+    <div class="image" :style="{'background-image': `url(${src})`}"></div>
     <div class="mask">
       <slot></slot>
     </div>
@@ -46,25 +46,37 @@ export default {
   background-color: #FAFAFA;
   border-radius: 6px;
   cursor: pointer;
-  background-position: center;
-  background-size: 100%;
-  background-repeat: no-repeat;
-  transition: all 0.5s;
   overflow: hidden;
+  position: relative;
+
+  .image{
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-size: cover;
+    transition: all 0.5s;
+    background-repeat: no-repeat;
+  }
 
   .mask{
     content: '';
     display: block;
     width: 100%;
     height: 100%;
-    transition: all 0.5s;
+    transition: all 0.8s;
+    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
 
   &:hover{
-    background-size: 130%;
+    .image{
+      transform: scale(1.1);
+    }
 
     .mask{
-      background-color: rgba(0, 0, 0, .2);
+      background-color: rgba(0, 0, 0, .4);
     }
   }
 }

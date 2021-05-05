@@ -1,7 +1,7 @@
 <template>
   <div class="user">
     <!-- 未登录 -->
-    <div class="user-none" v-if="!login">
+    <div class="user-none" v-if="!auth">
       <el-link type="primary" href="/auth/login">登录</el-link>
       <el-button
         type="primary"
@@ -11,19 +11,19 @@
     </div>
     <!-- 已登录 -->
     <div class="user-login" v-else>
-      <el-button type="primary" @click="login = false">个人空间</el-button>
-      <el-dropdown placement="bottom-start">
+      <el-button type="primary" @click="$router.push('/work')">我的项目</el-button>
+      <el-dropdown placement="bottom-start" @command="handleCommand">
         <div class="user-info">
-          <el-avatar size="medium"></el-avatar>
+          <el-avatar :src="user.avatar" size="medium"></el-avatar>
           <span class="user-info-name">
-            用户昵称<i class="el-icon-arrow-down el-icon--right"></i>
+            {{user.username}}<i class="el-icon-arrow-down el-icon--right"></i>
           </span>
         </div>
         <!-- 下拉菜单组件需要自定义 -->
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item>账号信息</el-dropdown-item>
           <el-dropdown-item>修改密码</el-dropdown-item>
-          <el-dropdown-item divided>退出登录</el-dropdown-item>
+          <el-dropdown-item @click="logout" command="logout" divided>退出登录</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -31,10 +31,27 @@
 </template>
 
 <script>
+import { mapGetters, mapState } from 'vuex'
+
 export default {
-  data: () => ({
-    login: false
-  })
+  computed: {
+    ...mapState(['user']),
+    ...mapGetters(['auth'])
+  },
+  methods: {
+    handleCommand (command) {
+      switch (command) {
+        case 'logout': this.logout(); break
+        default:
+      }
+    },
+    // 退出登录
+    logout () {
+      this.$store.commit('deleteUser')
+      this.$store.commit('deleteToken')
+      this.$router.push('/auth/login')
+    }
+  }
 }
 </script>
 

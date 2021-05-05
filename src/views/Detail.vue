@@ -1,7 +1,7 @@
 <template>
   <div>
     <project-header
-      title="2020第三季度高管考核评分"
+      title="2020年第三季度高管考核评分"
       :nav-type="mode === 'score' ? 'home' : 'back'"
     >
       <template #suffix>
@@ -18,9 +18,10 @@
 
     <div class="main">
       <project-item
-        v-for="(item, index) in projects"
+        v-for="(item, index) in itemList"
         :key="item.id"
-        v-model="results[index].result"
+        :value="results[index] ? results[index].result : ''"
+        @change="results[index].result = $event"
         :record="item"
         ref="items"
       />
@@ -39,32 +40,30 @@ import ProjectHeader from '@/components/ProjectHeader'
 import ProjectItem from '@/components/ProjectItem'
 import CreateDialog from '@/components/CreateDialog'
 
-const options = () => [
-  { label: '很好', value: 0 },
-  { label: '良好', value: 1 },
-  { label: '一般', value: 2 },
-  { label: '较差', value: 3 }
-]
+// const options = () => [
+//   { label: '很好', value: 0 },
+//   { label: '良好', value: 1 },
+//   { label: '一般', value: 2 },
+//   { label: '较差', value: 3 }
+// ]
 
 export default {
   components: { ProjectHeader, ProjectItem, CreateDialog },
   data: () => ({
-    // 页面类型，score:评分，temp:模板详情，preview:预览
+    projectId: null,
+    // 页面类型，score:评分, temp:模板详情, preview:预览
     mode: '',
     active: 0,
-    projects: [
-      { id: 0, type: 0, title: '是否存在', sort: 0, options: options() },
-      { id: 1, type: 2, title: '是否存在', sort: 1, options: options() },
-      { id: 2, type: 1, title: '是否存在', sort: 2, options: options() },
-      { id: 3, type: 2, title: '是否存在', sort: 3, options: options() },
-      { id: 4, type: 1, title: '是否存在', sort: 4, options: options() },
-      { id: 5, type: 3, title: '是否存在', sort: 5, options: options() }
-    ],
+    itemList: [],
     results: []
   }),
   methods: {
+    async queryItems () {
+      const res = await this.$api.items.getItems(this.projectId)
+      this.itemList = res.data.data
+    },
     initResult () {
-      this.results = this.projects.map(item => {
+      this.results = this.itemList.map(item => {
         let initVal = null
         switch (item.type) {
           case 0: initVal = 0; break
@@ -88,10 +87,13 @@ export default {
       console.log(data)
     }
   },
-  created () {
-    this.initResult()
+  async created () {
     const { type } = this.$route.params
+    const { id } = this.$route.query
     this.mode = type
+    this.projectId = id
+    await this.queryItems()
+    this.initResult()
   }
 }
 </script>

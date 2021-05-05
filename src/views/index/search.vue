@@ -2,8 +2,18 @@
   <div class="search">
     <div class="search-main">
       <div class="search-input">
-        <i class="el-icon-search icon"></i>
-        <input type="text" placeholder="您想寻找什么，搜索能够更快的帮助到您...">
+        <i class="el-icon-search search-icon"></i>
+        <input
+          type="text"
+          :value="value"
+          placeholder="您想寻找什么，搜索能够更快的帮助到您..."
+          @input="handleInput"
+        >
+        <i
+          v-show="value.length"
+          class="el-icon-close close-icon"
+          @click="$emit('change', '')"
+        ></i>
       </div>
       <div class="search-button">搜 索</div>
     </div>
@@ -11,8 +21,24 @@
 </template>
 
 <script>
-export default {
+import { debounce } from 'lodash'
 
+export default {
+  model: {
+    prop: 'value',
+    event: 'change'
+  },
+  props: {
+    value: {
+      type: String,
+      default: ''
+    }
+  },
+  methods: {
+    handleInput: debounce(function (e) {
+      this.$emit('change', e.target.value)
+    }, 300)
+  }
 }
 </script>
 
@@ -43,10 +69,17 @@ $search-font-space: 1px;
     display: flex;
     align-items: center;
 
-    .icon{
+    .search-icon{
       margin: 0 15px 0 20px;
       font-size: 24px;
       color: $regular-text;
+    }
+
+    .close-icon{
+      margin-right: 15px;
+      font-size: 20px;
+      color: $secondary-text;
+      cursor: pointer;
     }
 
     input{

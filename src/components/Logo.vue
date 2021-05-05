@@ -1,6 +1,6 @@
 <template>
   <div class="logo" @click="$router.push('/index')">
-    <img src="@/assets/logo3.png" alt="">
+    <img src="@/assets/logo5.png" alt="">
   </div>
 </template>
 
@@ -13,7 +13,7 @@ export default {
 <style lang="scss" scoped>
 .logo{
   width: 120px;
-  height: 40px;
+  height: 36px;
   cursor: pointer;
 
   img{
