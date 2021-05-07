@@ -15,8 +15,23 @@ function create (data) {
   return http.post('/project', data)
 }
 
+function detail (id) {
+  return http.get(`/project/${id}`)
+}
+
+function update ({ id, ...data }) {
+  return http.put(`/project/${id}`, data)
+}
+
+function release (id) {
+  return http.post(`/project/release/${id}`)
+}
+
 export default {
   getTemplates,
   getOwnProject,
-  create
+  create,
+  detail,
+  update,
+  release
 }

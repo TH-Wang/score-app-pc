@@ -1,13 +1,30 @@
 <template>
 <div>
-  <project-header title="2020第三季度高管考核评分">
+  <project-header :title="project.pname || ''">
     <template #suffix>
-      <el-button type="primary" size="medium">预览</el-button>
+      <el-button type="text" style="margin-right:15px" @click="$refs.info.open()">
+        <i class="el-icon-edit-outline"></i>
+        项目信息
+      </el-button>
+      <el-button type="primary" size="medium" @click="linkPreview">预览</el-button>
     </template>
   </project-header>
 
   <div class="main">
-    <div class="nav-grid"></div>
+    <div class="nav-grid">
+      <p>共 <span>{{items.length}}</span> 个评分项：</p>
+      <div class="nav-grid-box">
+        <div
+          v-for="(item, index) in items"
+          :key="item.id"
+          :class="{
+            'nav-grid-item': true,
+            'nav-grid-active': active === index
+          }"
+          @click="active = index"
+        >{{index+1}}</div>
+      </div>
+    </div>
 
     <div class="preview">
       <div class="title">{{active + 1}}、 {{current.title || '这里是标题'}}</div>
@@ -110,28 +127,31 @@
 
     <div class="footer">
       <el-button v-show="active > 0" @click="prevStep">
-        <i class="el-icon-arrow-left"></i>上一步
+        <i class="el-icon-arrow-left"></i>上一项
       </el-button>
-      <el-button type="primary">全部完成</el-button>
+      <el-button type="primary" @click="handleRelease">完成并发布</el-button>
       <el-button type="primary" @click="nextStep">
-        {{active === items.length - 1 ? '保存并继续' : '下一步'}}
+        下一项
         <i class="el-icon-arrow-right"></i>
       </el-button>
     </div>
   </div>
+
+  <create-dialog title="编辑" ref="info" @submit="editProject" />
 </div>
 </template>
 
 <script>
-import { isEmpty } from 'lodash'
+import { isEmpty, cloneDeep } from 'lodash'
 import ProjectHeader from '@/components/ProjectHeader'
+import CreateDialog from '../components/CreateDialog.vue'
 
 const _t = () => ({ rate: 0, radio: null, checkbox: [], input: '' })
 
-const _m = () => ({ title: '', type: 0, options: [] })
+const _m = () => ({ title: '', type: 0, options: [], id: Date.now() })
 
 export default {
-  components: { ProjectHeader },
+  components: { ProjectHeader, CreateDialog },
   data: vm => {
     const _v = (rule, val, cb) => {
       if (vm.current.type !== 1 && vm.current.type !== 2) {
@@ -152,7 +172,9 @@ export default {
       }
     }
     return {
-    // 当前评分项的索引
+      projectId: null,
+      project: {},
+      // 当前评分项的索引
       active: 0,
       // 检测项目
       items: [],
@@ -173,6 +195,24 @@ export default {
     }
   },
   methods: {
+    // 请求项目信息和评分项数据
+    async initDatas () {
+      // 请求评分项数据
+      const itemsRes = await this.$api.items.getItems(this.projectId)
+      const list = itemsRes.data.data
+      if (list.length) {
+        this.items = list
+        this.active = list.length - 1
+      }
+      // 请求项目基本信息
+      const projectRes = await this.$api.project.detail(this.projectId)
+      this.$refs.info.setData(projectRes.data.data)
+      this.project = cloneDeep(projectRes.data.data)
+    },
+    // 跳转预览页面
+    linkPreview () {
+      this.$router.push('/project/detail/preview?id=' + this.projectId)
+    },
     // 添加选项
     addOption (count) {
       count = count || 1
@@ -204,20 +244,72 @@ export default {
         const valid = await this.$refs.form.validate()
         if (!valid) return
 
+        const data = cloneDeep(this.current)
+
         if (this.active === this.items.length - 1) {
           this.items.push(_m())
+          this.createItem(data)
+        } else {
+          this.updateItem(data)
         }
         this.active++
       } catch (error) {}
+    },
+    // 修改项目信息
+    async editProject (values) {
+      const res = await this.$api.project.update(values)
+      const { success, data } = res.data
+      if (success) {
+        this.$refs.info.setData(data)
+        this.project = cloneDeep(data)
+        this.notify('修改成功')
+        this.$refs.info.close()
+      }
+    },
+    // 发布项目
+    async handleRelease () {
+      const res = await this.$api.project.release(this.projectId)
+      if (res.data.success) {
+        this.$message({
+          message: '发布成功',
+          type: 'success',
+          showClose: true
+        })
+        this.$router.go(-1)
+      }
+    },
+    // 添加评分项
+    async createItem ({ id, ...data }) {
+      const projectId = Number(this.projectId)
+      data = Object.assign({}, data, { projectId })
+      const res = await this.$api.items.create(data)
+      if (res.data.success) {
+        this.notify()
+      }
+    },
+    // 更新评分项
+    async updateItem (data) {
+      const res = await this.$api.items.update(data)
+      if (res.data.success) {
+        this.notify()
+      }
+    },
+    // 实时保存的提示
+    notify (title) {
+      this.$notify({
+        title: title || '实时保存成功',
+        duration: 1500,
+        type: 'success'
+      })
     }
   },
-  created () {
-    // const id = this.$route.query?.id
-    const tid = this.$route.query?.tid
-    if (tid) {
-      // 请求模板数据
-    } else {
-      this.items.push(_m())
+  async created () {
+    this.items.push(_m())
+
+    const id = this.$route.query?.id
+    this.projectId = id
+    if (typeof id !== 'undefined') {
+      this.initDatas()
     }
   }
 }
@@ -228,6 +320,56 @@ export default {
   margin: 0 auto;
   margin-top: 30px;
   width: 800px;
+  position: relative;
+}
+.nav-grid{
+  $size: 20px;
+  $count: 5;
+  width: ($size + 10px + 2px) * $count;
+  position: absolute;
+  top: 0;
+  left: calc(100% + 20px);
+
+  & > p {
+    margin-bottom: 10px;
+
+    span{
+      color: $primary-color;
+      font-weight: bold;
+    }
+  }
+
+  &-box{
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  &-item{
+    margin: 0 10px 10px 0;
+    width: $size;
+    height: $size;
+    line-height: $size;
+    text-align: center;
+    font-size: 12px;
+    border: solid 1px $placeholder;
+    cursor: pointer;
+
+    &:hover{
+      border-color: $primary-color;
+      color: $primary-color;
+    }
+  }
+
+  &-active{
+    border-color: $primary-color;
+    background-color: $primary-color;
+    color: #FFFFFF;
+
+    &:hover{
+      color: #FFFFFF;
+    }
+  }
 }
 .preview{
   border-bottom: dashed 2px #eee;

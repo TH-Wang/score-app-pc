@@ -4,4 +4,12 @@ function getItems (id) {
   return http.get(`/items/${id}`)
 }
 
-export default { getItems }
+function create (data) {
+  return http.post('/items/create', data)
+}
+
+function update ({ id, ...rest }) {
+  return http.put(`/items/${id}`, rest)
+}
+
+export default { getItems, create, update }

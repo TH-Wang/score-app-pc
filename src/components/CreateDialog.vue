@@ -3,8 +3,12 @@
     width="40vw"
     :visible="visible"
     :title="title"
+    top="8vh"
     @close="visible = false"
   >
+    <p v-if="tips" class="tips">
+      <i class="el-icon-info" style="color:#999"></i> {{tips}}
+    </p>
     <el-form
       ref="form"
       :model="form"
@@ -81,6 +85,10 @@ export default {
     title: {
       type: String,
       default: '新建'
+    },
+    tips: {
+      type: String,
+      default: null
     }
   },
   data: () => ({
@@ -115,6 +123,10 @@ export default {
     close () {
       this.visible = false
     },
+    setData (data) {
+      this.form = data
+      this.previewCover = data._path_cover
+    },
     async handleImage (res, file) {
       // const result = await this.$api.upload(file)
       this.form.cover = res.data.filename
@@ -129,6 +141,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.tips{
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
 .upload-button{
   width: 160px;
   height: 120px;

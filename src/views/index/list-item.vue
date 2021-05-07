@@ -1,6 +1,6 @@
 <template>
   <div class="list-item" @click="$emit('click')">
-    <cover :src="record.cover" width="100%" height="120px" />
+    <cover :src="record._path_cover" width="100%" height="120px" />
     <div class="list-item-title">
       {{record.pname}}
     </div>
